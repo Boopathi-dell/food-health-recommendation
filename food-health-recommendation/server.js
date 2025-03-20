@@ -3,8 +3,14 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const connectDB = require("./config/db");
 
-// Load environment variables as early as possible
+// Load environment variables early
 dotenv.config();
+
+// Check if MONGO_URI is available
+if (!process.env.MONGO_URI) {
+    console.error("❌ MONGO_URI is not defined in environment variables.");
+    process.exit(1); // Stop the process
+}
 
 // Initialize Express app
 const app = express();
@@ -13,23 +19,24 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Start the server only after MongoDB successfully connects
+// Start the server only after MongoDB connects
 const startServer = async () => {
     try {
-        // Ensure the MongoDB URI is available
-        if (!process.env.MONGO_URI) {
-            throw new Error("❌ MONGO_URI is not defined in environment variables.");
-        }
-
         // Connect to MongoDB
         await connectDB();
-        console.log("✅ MongoDB Connected");
+        console.log("✅ MongoDB Connected Successfully");
 
-        // Import Routes (import only after DB connection is established)
-        const authRoutes = require("./routes/authRoutes");
-        const adminRoutes = require("./routes/adminRoutes");
-        const userProfileRoutes = require("./routes/userProfileRoutes");
-        const recommendationsRoutes = require("./routes/recommendationsRoutes");
+        // Import Routes (only after DB is connected)
+        let authRoutes, adminRoutes, userProfileRoutes, recommendationsRoutes;
+        try {
+            authRoutes = require("./routes/authRoutes");
+            adminRoutes = require("./routes/adminRoutes");
+            userProfileRoutes = require("./routes/userProfileRoutes");
+            recommendationsRoutes = require("./routes/recommendationsRoutes");
+        } catch (error) {
+            console.error("❌ Error loading routes:", error.message);
+            process.exit(1); // Stop if routes fail to load
+        }
 
         // Use Routes
         app.use("/api/auth", authRoutes);
