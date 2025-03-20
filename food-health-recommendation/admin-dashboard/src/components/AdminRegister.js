@@ -21,7 +21,7 @@ const AdminRegister = () => {
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:5000/api/admin/register", formData);
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/admin/register`, formData);
       alert("Admin registered successfully! Please login.");
       navigate("/admin/login"); // Redirect to login page
     } catch (error) {

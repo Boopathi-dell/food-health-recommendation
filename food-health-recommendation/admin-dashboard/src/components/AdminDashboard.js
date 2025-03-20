@@ -19,7 +19,7 @@ const AdminDashboard = () => {
         return;
       }
 
-      const response = await axios.get("http://localhost:5000/api/admin/users", {
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/admin/users`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -43,7 +43,7 @@ const AdminDashboard = () => {
       const newStatus = !currentStatus;
 
       await axios.put(
-        `http://localhost:5000/api/admin/users/${userId}/toggle`,
+        `${process.env.REACT_APP_API_BASE_URL}/api/admin/users/${userId}/toggle`,
         { isActive: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -64,7 +64,7 @@ const AdminDashboard = () => {
     if (window.confirm("Are you sure you want to delete this user?")) {
       try {
         const token = getToken();
-        await axios.delete(`http://localhost:5000/api/admin/users/${userId}`, {
+        await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/api/admin/users/${userId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         fetchUsers(); // Refresh list

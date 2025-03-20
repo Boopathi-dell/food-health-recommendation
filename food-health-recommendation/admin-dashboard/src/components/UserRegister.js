@@ -24,7 +24,7 @@ const UserRegister = () => {
     setLoading(true); // Show loading state
 
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/register", formData); // ✅ Fixed endpoint
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/auth/register`, formData); // ✅ Fixed endpoint
       alert(response.data.message || "User registered successfully! Please login.");
       navigate("/login"); // Redirect to user login page
     } catch (error) {

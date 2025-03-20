@@ -26,7 +26,7 @@ const UserDashboard = () => {
   const fetchProfile = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await axios.get("http://localhost:5000/api/users/profile", {
+      const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/users/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setProfile(res.data.profile);
@@ -40,7 +40,7 @@ const UserDashboard = () => {
     e.preventDefault();
     try {
       setError(""); // Clear previous errors
-      const response = await axios.get(`http://localhost:5000/api/recommendations/recommend?disease=${disease}`);
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/recommendations/recommend?disease=${disease}`);
       setRecommendations(response.data.recommendations);
     } catch (err) {
       setError("No recommendations found for this disease.");
@@ -60,7 +60,7 @@ const UserDashboard = () => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:5000/api/recommendations/food-info?food=${foodType}`);
+      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/recommendations/food-info?food=${foodType}`);
       setFoodDetails(response.data.details);
     } catch (err) {
       setError("No information found for this food type.");
@@ -79,7 +79,7 @@ const UserDashboard = () => {
       const token = localStorage.getItem("token");
       const healthConditionsArray = profile.healthConditions.split(",").map(item => item.trim());
 
-      await axios.put("http://localhost:5000/api/users/profile",
+      await axios.put(`${process.env.REACT_APP_API_BASE_URL}/api/users/profile`,
         { ...profile, healthConditions: healthConditionsArray },
         { headers: { Authorization: `Bearer ${token}` } }
       );
