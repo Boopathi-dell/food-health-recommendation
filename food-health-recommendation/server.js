@@ -19,35 +19,40 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Import Routes (Import before starting the server)
-let authRoutes, adminRoutes, userProfileRoutes, recommendationsRoutes;
-try {
-    authRoutes = require("./routes/authRoutes");
-    adminRoutes = require("./routes/adminRoutes");
-    userProfileRoutes = require("./routes/userProfileRoutes");
-    recommendationsRoutes = require("./routes/recommendationsRoutes");
-} catch (error) {
-    console.error("❌ Error loading routes:", error.message);
-    process.exit(1); // Stop the app if routes fail to load
-}
+// Import Routes Safely
+const loadRoutes = () => {
+    try {
+        return {
+            authRoutes: require("./routes/authRoutes"),
+            adminRoutes: require("./routes/adminRoutes"),
+            userProfileRoutes: require("./routes/userProfileRoutes"),
+            recommendationsRoutes: require("./routes/recommendationsRoutes"),
+        };
+    } catch (error) {
+        console.error("❌ Error loading routes:", error.message);
+        process.exit(1); // Stop the app if routes fail to load
+    }
+};
+
+const { authRoutes, adminRoutes, userProfileRoutes, recommendationsRoutes } = loadRoutes();
+
+// Use Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/users", userProfileRoutes);
+app.use("/api/recommendations", recommendationsRoutes);
+
+// Global error handler
+app.use((err, req, res, next) => {
+    console.error("❌ Server Error:", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+});
 
 // Start the server only after MongoDB connects
 const startServer = async () => {
     try {
         await connectDB();
         console.log("✅ MongoDB Connected Successfully");
-
-        // Use Routes
-        app.use("/api/auth", authRoutes);
-        app.use("/api/admin", adminRoutes);
-        app.use("/api/users", userProfileRoutes);
-        app.use("/api/recommendations", recommendationsRoutes);
-
-        // Global error handler (for catching route errors)
-        app.use((err, req, res, next) => {
-            console.error("❌ Server Error:", err.message);
-            res.status(500).json({ error: "Internal Server Error" });
-        });
 
         // Start Server
         const PORT = process.env.PORT || 5000;
